@@ -1,35 +1,93 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import {
+  BrowserRouter as Router, Route, Routes,
+} from 'react-router-dom';
+import { AuthProvider, RequireAuth } from 'react-auth-kit';
+import Login from './Components/auth/SignInForm';
+import Register from './Components/auth/SignUpForm';
+import AddGamesForm from './Components/games/AddGamesForm';
+import Session from './Components/session/Session';
+import MainPage from './Components/pages/MainPage';
+import Reservations from './Components/reservations/Reservations';
+import GameDetails from './Components/details/GameDetails';
+import './App.css';/* eslint-disable */
+import GamesListComponent from './Components/games/GamesListComponent';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import ParentComponent from './Components/reservations/ReservationForm';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const routes = [
+    {
+      path: '/',
+      element: <Session />,
+      requiresAuth: false,
+    },
+    {
+      path: '/login',
+      element: <Login />,
+      requiresAuth: false,
+    },
+    {
+      path: '/register',
+      element: <Register />,
+      requiresAuth: false,
+    },
+    {
+      path: '/games',
+      element: <MainPage />,
+      requiresAuth: true,
+    },
+    {
+      path: '/addGame',
+      element: <AddGamesForm />,
+      requiresAuth: true,
+    },
+    {
+      path: '/gamelist',
+      element: <GamesListComponent />,
+      requiresAuth: true,
+    },
+    {
+      path: '/details/:gameId',
+      element: <GameDetails />,
+      requiresAuth: true,
+    },
+    {
+      path: '/reservations',
+      element: <Reservations />,
+      requiresAuth: true,
+    },
+    {
+      path: '/reservations/new',
+      element: <ParentComponent />,
+      requiresAuth: true,
+    }
+  ]
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+  
+    <AuthProvider
+      authType="cookie"
+      authName="_auth"
+      cookieDomain={window.location.hostname}
+      cookieSecure={false}
+    >
+      <Router>
+        <Routes>
+          {routes.map((route) => {
+            return (
+              <Route
+                path={route.path}
+                element={
+                  route.requiresAuth ? <RequireAuth loginPath="/login">{route.element}</RequireAuth> : route.element
+                } />
+            )
+          })}
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+} 
 
-export default App
+export default App;
